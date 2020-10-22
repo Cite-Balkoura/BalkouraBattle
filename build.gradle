@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+group 'fr.romitou'
+version '1.0-SNAPSHOT'
+
+compileJava.options.encoding = 'UTF-8'
+
+configurations {
+    extraLibs
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://papermc.io/repo/repository/maven-public/' }
+}
+
+dependencies {
+    compile('com.destroystokyo.paper:paper-api:1.16.3-R0.1-SNAPSHOT')
+    extraLibs('com.google.http-client:google-http-client:1.37.0')
+    configurations.compile.extendsFrom(configurations.extraLibs)
+}
+
+jar {
+    from {
+        configurations.extraLibs.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}

@@ -1,0 +1,9 @@
+sql:
+  hostname: "example"
+  database: "example"
+  user: "example"
+  password: "example"
+
+challonge:
+  url: "https://api.challonge.com/v1/"
+  key: "example"
