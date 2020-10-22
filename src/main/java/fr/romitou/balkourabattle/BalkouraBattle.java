@@ -1,6 +1,6 @@
-package fr.romitou.balkoura1v1;
+package fr.romitou.balkourabattle;
 
-import fr.romitou.balkoura1v1.tasks.ChallongeSyncTask;
+import fr.romitou.balkourabattle.tasks.ChallongeSyncTask;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 

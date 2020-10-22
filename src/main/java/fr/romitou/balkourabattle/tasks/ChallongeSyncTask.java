@@ -1,6 +1,6 @@
-package fr.romitou.balkoura1v1.tasks;
+package fr.romitou.balkourabattle.tasks;
 
-import fr.romitou.balkoura1v1.utils.JsonRequest;
+import fr.romitou.balkourabattle.utils.JsonRequest;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.simple.JSONObject;
 

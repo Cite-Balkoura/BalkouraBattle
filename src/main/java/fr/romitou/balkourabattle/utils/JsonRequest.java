@@ -1,10 +1,10 @@
-package fr.romitou.balkoura1v1.utils;
+package fr.romitou.balkourabattle.utils;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import fr.romitou.balkoura1v1.BalkouraBattle;
+import fr.romitou.balkourabattle.BalkouraBattle;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 

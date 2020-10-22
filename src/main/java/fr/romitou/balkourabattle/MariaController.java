@@ -1,4 +1,4 @@
-package fr.romitou.balkoura1v1;
+package fr.romitou.balkourabattle;
 
 import org.bukkit.Bukkit;
 
