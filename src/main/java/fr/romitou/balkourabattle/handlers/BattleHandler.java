@@ -15,7 +15,18 @@ public class BattleHandler {
             Map<String, Object> playerData = new HashMap<>();
             playerData.put("name", player.getName());
             JsonRequest.postJsonRequest("tournaments/balkoura_1vs1_test/participants", playerData);
+            try {
+                Thread.sleep(1000);
+                // We wait one second in order to not surcharge Challonge's API.
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
         ChatUils.sendMessage(sender, "L'enregistrement des joueurs est terminé.");
     }
+
+    public static void startMatchMaking(CommandSender sender) {
+        //
+    }
+
 }
