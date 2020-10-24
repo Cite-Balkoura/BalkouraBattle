@@ -1,6 +1,5 @@
 package fr.romitou.balkourabattle.commands;
 
-import com.sun.istack.internal.NotNull;
 import fr.romitou.balkourabattle.handlers.BattleHandler;
 import fr.romitou.balkourabattle.utils.ChatUils;
 import org.bukkit.command.Command;
