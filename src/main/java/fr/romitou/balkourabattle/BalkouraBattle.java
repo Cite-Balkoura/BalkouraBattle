@@ -1,6 +1,8 @@
 package fr.romitou.balkourabattle;
 
+import fr.romitou.balkourabattle.commands.EventCommand;
 import fr.romitou.balkourabattle.tasks.ChallongeSyncTask;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,10 +34,16 @@ public class BalkouraBattle extends JavaPlugin {
 
         // -- Tasks --
         new ChallongeSyncTask().runTaskTimerAsynchronously(this, 0, 2000);
+
+        // -- Commands --
+        PluginCommand battleCommand = this.getCommand("battle");
+        assert battleCommand != null;
+        battleCommand.setExecutor(new EventCommand());
     }
 
     @Override
     public void onDisable() {
+        assert sql != null;
         sql.disconnect();
     }
 

@@ -1,3 +1,6 @@
 name: BalkouraBattle
 version: 1.0.0
-main: fr.romitou.balkoura1v1.BalkouraBattle
+main: fr.romitou.balkourabattle.BalkouraBattle
+commands:
+  battle:
+    description: "Commande principale de Balkoura Battle."

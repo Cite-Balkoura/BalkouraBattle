@@ -19,6 +19,7 @@ repositories {
 dependencies {
     compile('com.destroystokyo.paper:paper-api:1.16.3-R0.1-SNAPSHOT')
     extraLibs('com.google.http-client:google-http-client:1.37.0')
+    extraLibs('com.google.http-client:google-http-client-jackson2:1.29.2')
     configurations.compile.extendsFrom(configurations.extraLibs)
 }
 
