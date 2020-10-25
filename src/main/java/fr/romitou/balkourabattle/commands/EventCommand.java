@@ -1,10 +1,7 @@
 package fr.romitou.balkourabattle.commands;
 
 import fr.romitou.balkourabattle.BalkouraBattle;
-import fr.romitou.balkourabattle.handlers.BattleHandler;
-import fr.romitou.balkourabattle.tasks.FinalizeTournament;
-import fr.romitou.balkourabattle.tasks.ResetTournament;
-import fr.romitou.balkourabattle.tasks.StartTournament;
+import fr.romitou.balkourabattle.tasks.*;
 import fr.romitou.balkourabattle.utils.ChatUils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -25,7 +22,7 @@ public class EventCommand implements TabExecutor {
         }
         switch (args[0]) {
             case "init":
-                BattleHandler.registerPlayers(sender);
+                new RegisterParticipants(sender).runTaskAsynchronously(INSTANCE);
                 ChatUils.sendMessage(sender, "Début de l'enregistrement des joueurs. Cela peut prendre un moment ...");
                 break;
             case "start":
@@ -33,7 +30,6 @@ public class EventCommand implements TabExecutor {
                 ChatUils.sendMessage(sender, "Le tournois a été ouvert et ne peut plus être modifié.");
                 break;
             case "matchmaking":
-                BattleHandler.startMatchMaking(sender);
                 ChatUils.sendMessage(sender, "Récupération des équipes depuis Challonge ...");
                 break;
             case "reset":
