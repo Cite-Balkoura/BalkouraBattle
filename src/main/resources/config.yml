@@ -5,5 +5,5 @@ sql:
   password: "example"
 
 challonge:
-  url: "https://api.challonge.com/v1/"
+  default_endpoint: "https://api.challonge.com/v1/tournaments/balkoura_1vs1_test/"
   key: "example"

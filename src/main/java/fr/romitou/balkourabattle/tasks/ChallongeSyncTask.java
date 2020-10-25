@@ -8,7 +8,7 @@ public class ChallongeSyncTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        JSONObject response = JsonRequest.getJsonRequest("tournaments/balkoura_1vs1_test");
+        JSONObject response = JsonRequest.getJsonRequest("");
         assert response != null;
         System.out.println(response.get("tournament"));
         // </>
