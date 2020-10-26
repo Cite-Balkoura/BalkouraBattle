@@ -31,6 +31,7 @@ public class EventCommand implements TabExecutor {
                 break;
             case "matchmaking":
                 ChatUils.sendMessage(sender, "Récupération des équipes depuis Challonge ...");
+                new GetMatches().runTaskAsynchronously(INSTANCE);
                 break;
             case "reset":
                 new ResetTournament().runTaskAsynchronously(INSTANCE);
