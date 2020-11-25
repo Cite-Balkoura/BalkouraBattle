@@ -32,8 +32,9 @@ public class BalkouraBattle extends JavaPlugin {
                 config.getString("sql.password"));
         sql.connect();
 
-        // -- Tasks --
-        new ChallongeSyncTask().runTaskTimerAsynchronously(this, 0, 2000);
+        // -- Tasks and events --
+        new ChallongeSyncTask().runTaskTimerAsynchronously(this, 0, 10000);
+        getServer().getPluginManager().registerEvents(new EventListener(), this);
 
         // -- Commands --
         PluginCommand battleCommand = this.getCommand("battle");

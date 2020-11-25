@@ -25,14 +25,14 @@ public class RegisterParticipants extends BukkitRunnable {
     @Override
     public void run() {
         Bukkit.getServer().getOnlinePlayers().forEach(player -> {
-            if (BattleHandler.getPlayers().containsValue(player.getName()))
+            if (BattleHandler.getPlayers().containsValue(player))
                 return;
             Map<String, Object> playerData = new HashMap<>();
             playerData.put("name", player.getName());
             JSONObject data = JsonRequest.postJsonRequest("/participants", playerData);
             assert data != null;
             ArrayMap<?, ?> participant = (ArrayMap<?, ?>) data.get("participant");
-            BattleHandler.addPlayer(((BigDecimal) participant.get("id")).intValue(), player.getName());
+            BattleHandler.addPlayer(((BigDecimal) participant.get("id")).intValue(), player);
             try {
                 Thread.sleep(1000); // We wait one second in order to not surcharge Challonge's API.
             } catch (InterruptedException e) {
