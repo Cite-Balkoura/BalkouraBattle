@@ -65,8 +65,18 @@ public class JsonRequest {
         return null;
     }
 
-    public static JSONObject postJsonRequest(String endpoint) {
-        return postJsonRequest(endpoint, null);
+    public static void postJsonRequest(String endpoint) {
+        postJsonRequest(endpoint, null);
+    }
+
+    public static JSONObject putJsonRequest(String endpoint, @Nullable Map<String, Object> data) {
+        data = (data == null ? new HashMap<>() : data);
+        data.put("_method", "put");
+        return postJsonRequest(endpoint, data);
+    }
+
+    public static JSONObject putJsonRequest(String endpoint) {
+        return putJsonRequest(endpoint, null);
     }
 
 }

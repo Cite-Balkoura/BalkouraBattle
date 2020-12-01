@@ -8,4 +8,5 @@ public class ResetTournament extends BukkitRunnable {
     public void run() {
         JsonRequest.postJsonRequest("/reset");
     }
+
 }

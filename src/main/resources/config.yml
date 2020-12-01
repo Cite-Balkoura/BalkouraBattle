@@ -1,9 +1,14 @@
-sql:
-  hostname: "example"
-  database: "example"
-  user: "example"
-  password: "example"
-
+---
 challonge:
   default_endpoint: "https://api.challonge.com/v1/tournaments/balkoura_1vs1_test/"
   key: "example"
+
+arenas:
+  1:
+    location:
+      1: x
+      2: x
+  2:
+    location:
+      1: x
+      2: x

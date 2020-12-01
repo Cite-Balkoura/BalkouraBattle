@@ -1,9 +1,11 @@
 package fr.romitou.balkourabattle.tasks;
 
 import com.google.api.client.util.ArrayMap;
+import fr.romitou.balkourabattle.BalkouraBattle;
 import fr.romitou.balkourabattle.BattleHandler;
 import fr.romitou.balkourabattle.utils.ArenaUtils;
 import fr.romitou.balkourabattle.utils.JsonRequest;
+import fr.romitou.balkourabattle.utils.MatchUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -24,17 +26,18 @@ public class ChallongeSyncTask extends BukkitRunnable {
             ArrayMap<?, ?> m = (ArrayMap<?, ?>) ((ArrayMap<?, ?>) match).get("match");
             if (m.get("round") != BattleHandler.getRound()) return;
             if (ArenaUtils.getAvailableArenas().size() == 0) return;
-            Player player1 = BattleHandler.getPlayers().get(((BigDecimal) m.get("player1_id")).intValueExact());
-            Player player2 = BattleHandler.getPlayers().get(((BigDecimal) m.get("player2_id")).intValueExact());
-            assert player1 != null && player2 != null;
+            Player[] players = MatchUtils.getPlayers(m);
+            assert players[0] != null && players[1] != null;
             int arena = ArenaUtils.getRandomAvailableArena();
             int matchId = ((BigDecimal) m.get("id")).intValue();
             BattleHandler.addArena(arena, matchId);
             Location[] locations = ArenaUtils.getArenaLocations(arena);
             CompletableFuture.allOf(
-                    player1.teleportAsync(locations[0]),
-                    player2.teleportAsync(locations[1])
-            ).thenRunAsync(new MarkMatchAsUnderway(matchId));
+                    players[0].teleportAsync(locations[0]),
+                    players[1].teleportAsync(locations[1])
+            );
+            new MarkMatchAsUnderway(matchId).runTaskAsynchronously(BalkouraBattle.getInstance());
+            new EndMatchTimer(matchId, players[0], players[1], 30).runTaskTimerAsynchronously(BalkouraBattle.getInstance(), 0, 1000);
         });
     }
 }
