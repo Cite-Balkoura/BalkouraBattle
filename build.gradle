@@ -1,14 +1,18 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'java'
 }
 
-group 'fr.romitou'
-version '1.0-SNAPSHOT'
+group 'fr.romitou.balkourabattle'
+version '1.0'
 
 compileJava.options.encoding = 'UTF-8'
 
-configurations {
-    extraLibs
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+shadowJar {
+    archiveBaseName.set('BalkouraBattle')
 }
 
 repositories {
@@ -17,16 +21,8 @@ repositories {
 }
 
 dependencies {
-    compile('com.destroystokyo.paper:paper-api:1.16.3-R0.1-SNAPSHOT')
-    extraLibs('com.google.http-client:google-http-client:1.37.0')
-    extraLibs('com.google.http-client:google-http-client-jackson2:1.29.2')
-    configurations.compile.extendsFrom(configurations.extraLibs)
-}
-
-jar {
-    from {
-        configurations.extraLibs.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
+    compileOnly('com.destroystokyo.paper:paper-api:1.16.3-R0.1-SNAPSHOT')
+    compile('at.stefangeyer.challonge:core:2.1.0')
+    compile('at.stefangeyer.challonge.serializer:gson:2.1.0')
+    compile('at.stefangeyer.challonge.rest:retrofit:2.1.0')
 }

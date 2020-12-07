@@ -9,7 +9,7 @@ public class ChatUtils {
 
     private final static String PREFIX = "§6[§eBattle§6] §f";
 
-    private static String getFormattedMessage(String... text) {
+    public static String getFormattedMessage(String... text) {
         return PREFIX + StringUtils.join(text, "");
     }
 
@@ -33,12 +33,17 @@ public class ChatUtils {
         player.sendMessage(getFormattedMessage(strings));
     }
 
+    public static void broadcast(String... strings) {
+        // Due to permissions issues, we are forced to do it this way.
+        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(getFormattedMessage(strings)));
+    }
+
     public static void broadcastConnection(Player player) {
-        Bukkit.getServer().broadcastMessage("§a[+]§f Bienvenue, §e" + player.getName() + "§f.");
+        broadcast("§a[+]§f Bienvenue, §e" + player.getName() + "§f.");
     }
 
     public static void broadcastDisconnection(Player player) {
-        Bukkit.getServer().broadcastMessage("§c[-]§f Au revoir, §e" + player.getName() + "§f.");
+        broadcast("§c[-]§f Au revoir, §e" + player.getName() + "§f.");
     }
 
 }

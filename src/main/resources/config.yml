@@ -1,7 +1,8 @@
 ---
 challonge:
-  default_endpoint: "https://api.challonge.com/v1/tournaments/balkoura_1vs1_test/"
-  key: "example"
+  username: "undefined"
+  password: "undefined"
+  tournament: "balkoura_1vs1_test"
 
 arenas:
   1:

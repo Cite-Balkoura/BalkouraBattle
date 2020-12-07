@@ -1,28 +1,33 @@
 package fr.romitou.balkourabattle.utils;
 
-import com.google.common.collect.BiMap;
 import fr.romitou.balkourabattle.BalkouraBattle;
 import fr.romitou.balkourabattle.BattleHandler;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 public class ArenaUtils {
 
     private final static Random RANDOM = new Random();
 
+    public static Integer getArenaIdByMatchId(Long matchId) {
+        return JavaUtils.getKeyByValue(BattleHandler.arenas, matchId);
+    }
+
     /**
      * This method is useful to find arenas which are available to host a match.
      *
      * @return A BiMap.
      */
-    @SuppressWarnings("unchecked")
-    public static BiMap<Integer, Integer> getAvailableArenas() {
-        return (BiMap<Integer, Integer>) BattleHandler.getArenas()
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getKey() == null);
+    public static List<Integer> getAvailableArenas() {
+        List<Integer> list = new LinkedList<>();
+        BattleHandler.arenas.forEach((key, value) -> {
+            if (value == null) list.add(key);
+        });
+        return list;
     }
 
     /**
@@ -31,7 +36,7 @@ public class ArenaUtils {
      * @return An arena ID.
      */
     public static Integer getRandomAvailableArena() {
-        BiMap<Integer, Integer> arenas = getAvailableArenas();
+        List<Integer> arenas = getAvailableArenas();
 
         return arenas.get(RANDOM.nextInt(arenas.size()));
     }
@@ -41,9 +46,12 @@ public class ArenaUtils {
      * This step is very important, otherwise the plugin won't work.
      */
     public static void init() {
-        ConfigurationSection config = BalkouraBattle.getInstance().getConfigFile().getConfigurationSection("arenas");
+        ConfigurationSection config = BalkouraBattle.getConfigFile().getConfigurationSection("arenas");
         assert config != null;
-        config.getKeys(false).forEach(key -> BattleHandler.getArenas().put(config.getInt(key), null));
+        config.getKeys(false).forEach(key -> {
+            System.out.println("config:" + key);
+            BattleHandler.arenas.put(Integer.valueOf(key), null);
+        });
     }
 
     /**
@@ -54,10 +62,10 @@ public class ArenaUtils {
      */
     public static Location[] getArenaLocations(Integer arenaId) {
         return new Location[]{
-                BalkouraBattle.getInstance()
+                BalkouraBattle
                         .getConfigFile()
                         .getLocation("arenas." + arenaId + ".location.1"),
-                BalkouraBattle.getInstance()
+                BalkouraBattle
                         .getConfigFile()
                         .getLocation("arenas." + arenaId + ".location.2")
         };
@@ -71,11 +79,12 @@ public class ArenaUtils {
      * @param location The location of this position.
      */
     public static void setLocation(int arenaId, int pos, Location location) {
-        ConfigurationSection arenas = BalkouraBattle.getInstance()
+        ConfigurationSection arenas = BalkouraBattle
                 .getConfigFile()
                 .getConfigurationSection("arenas");
         assert arenas != null;
         arenas.set(arenaId + ".location." + pos, location);
+        BalkouraBattle.getInstance().saveConfig();
     }
 
 }

@@ -1,11 +1,13 @@
 package fr.romitou.balkourabattle.utils;
 
+import fr.romitou.balkourabattle.tasks.ParticipantMatchCheckTask;
+
 /**
  * This enum is used to make difference between the multiple checks of an participant.
  *
- * @see fr.romitou.balkourabattle.tasks.CheckParticipantMatch
+ * @see ParticipantMatchCheckTask
  */
-public enum ParticipantCheckType {
+public enum ParticipantMatchCheckType {
     /**
      * Represents a participant disconnection when fighting.
      */
