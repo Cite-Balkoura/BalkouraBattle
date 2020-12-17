@@ -3,33 +3,34 @@ package fr.romitou.balkourabattle.tasks;
 import at.stefangeyer.challonge.exception.DataAccessException;
 import at.stefangeyer.challonge.model.Match;
 import at.stefangeyer.challonge.model.query.MatchQuery;
+import fr.romitou.balkourabattle.BattleManager;
 import fr.romitou.balkourabattle.ChallongeManager;
-import fr.romitou.balkourabattle.utils.MatchUtils;
+import fr.romitou.balkourabattle.elements.Arena;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import javax.annotation.Nullable;
 
 public class MatchScoreUpdatingTask extends BukkitRunnable {
 
     private final Match match;
-    private Integer score1;
-    private Integer score2;
+    private final boolean endMatch;
 
-    public MatchScoreUpdatingTask(Match match, @Nullable Integer score1, @Nullable Integer score2) {
+    public MatchScoreUpdatingTask(Match match, boolean endMatch) {
         this.match = match;
-        this.score1 = score1;
-        this.score2 = score2;
+        this.endMatch = endMatch;
     }
 
     @Override
     public void run() {
-        if (score1 == null || score2 == null) {
-            Integer[] scores = MatchUtils.getScores(match);
-            score1 = scores[0];
-            score2 = scores[1];
-        }
+        // TODO: endMatch scores
         try {
-            ChallongeManager.getChallonge().updateMatch(match, MatchQuery.builder().scoresCsv(score1 + "-" + score2).build());
+            Match updateMatch = ChallongeManager.getChallonge().updateMatch(
+                    match,
+                    MatchQuery.builder()
+                            .scoresCsv(match.getScoresCsv())
+                            .build()
+            );
+            Arena arena = BattleManager.getArenaByMatchId(updateMatch.getId());
+            if (arena != null)
+                BattleManager.arenas.replace(arena, updateMatch);
         } catch (DataAccessException e) {
             e.printStackTrace();
         }

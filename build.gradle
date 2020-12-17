@@ -25,4 +25,14 @@ dependencies {
     compile('at.stefangeyer.challonge:core:2.1.0')
     compile('at.stefangeyer.challonge.serializer:gson:2.1.0')
     compile('at.stefangeyer.challonge.rest:retrofit:2.1.0')
+    compile('commons-lang:commons-lang:2.6')
+    testImplementation(platform('org.junit:junit-bom:5.7.0'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }

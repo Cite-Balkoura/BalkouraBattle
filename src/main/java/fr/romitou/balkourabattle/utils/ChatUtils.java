@@ -1,16 +1,34 @@
 package fr.romitou.balkourabattle.utils;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 public class ChatUtils {
 
     private final static String PREFIX = "§6[§eBattle§6] §f";
+    private final static String ERROR_PREFIX = "§cErreur: ";
+    private final static String DELIMITER = "§7§m                                                                     ";
+    private final static String[] SPACED_DELIMITER = new String[]{"", DELIMITER, ""};
 
     public static String getFormattedMessage(String... text) {
         return PREFIX + StringUtils.join(text, "");
+    }
+
+    public static void sendBeautifulMessage(Player player, List<TextComponent> textComponents) {
+        player.sendMessage(SPACED_DELIMITER);
+        textComponents.forEach(player::sendMessage);
+        player.sendMessage(SPACED_DELIMITER);
+    }
+
+    public static void sendBeautifulMessage(Player player, String... strings) {
+        player.sendMessage(SPACED_DELIMITER);
+        player.sendMessage(strings);
+        player.sendMessage(SPACED_DELIMITER);
     }
 
     /**
@@ -38,12 +56,8 @@ public class ChatUtils {
         Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(getFormattedMessage(strings)));
     }
 
-    public static void broadcastConnection(Player player) {
-        broadcast("§a[+]§f Bienvenue, §e" + player.getName() + "§f.");
-    }
-
-    public static void broadcastDisconnection(Player player) {
-        broadcast("§c[-]§f Au revoir, §e" + player.getName() + "§f.");
+    public static void modAlert(String... strings) {
+        broadcast(ERROR_PREFIX + StringUtils.join(strings));
     }
 
 }

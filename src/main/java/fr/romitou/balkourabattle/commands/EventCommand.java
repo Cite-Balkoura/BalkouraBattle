@@ -1,10 +1,13 @@
 package fr.romitou.balkourabattle.commands;
 
 import fr.romitou.balkourabattle.BalkouraBattle;
-import fr.romitou.balkourabattle.BattleHandler;
-import fr.romitou.balkourabattle.tasks.*;
-import fr.romitou.balkourabattle.utils.ArenaUtils;
+import fr.romitou.balkourabattle.BattleManager;
+import fr.romitou.balkourabattle.tasks.MatchRequestCallbackTask;
+import fr.romitou.balkourabattle.tasks.ParticipantsRegistrationTask;
+import fr.romitou.balkourabattle.tasks.TournamentResettingTask;
+import fr.romitou.balkourabattle.tasks.TournamentStartingTask;
 import fr.romitou.balkourabattle.utils.ChatUtils;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -19,52 +22,51 @@ public class EventCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, String[] args) {
-        if (args.length < 1 || args[0].equals("help")) {
-            ChatUtils.sendMessage(sender, "Commandes disponibles: §e/battle init§f.");
+        if (args.length < 1) {
+            ChatUtils.sendMessage(sender, "Commande invalide.");
             return false;
         }
         switch (args[0]) {
+            case "register":
             case "init":
                 ChatUtils.sendMessage(sender, "Début de l'enregistrement des joueurs. Cela peut prendre un moment ...");
-                new ParticipantsRegistrationTask().runTaskAsynchronously(INSTANCE);
+                new ParticipantsRegistrationTask((Player) sender).runTaskAsynchronously(INSTANCE);
                 break;
             case "start":
                 new TournamentStartingTask().runTaskAsynchronously(INSTANCE);
                 ChatUtils.sendMessage(sender, "Le tournois a été ouvert et ne peut plus être modifié.");
                 break;
-            case "announce":
-                ChatUtils.sendMessage(sender, "Annonce des matchs aux joueurs.");
-                new MatchesAnnouncementTask().runTaskAsynchronously(INSTANCE);
-                break;
             case "reset":
                 new TournamentResettingTask().runTaskAsynchronously(INSTANCE);
                 ChatUtils.sendMessage(sender, "Le tournois a été réinitialisé.");
                 break;
-            case "finalize":
-                new TournamentFinalizationTask().runTaskAsynchronously(INSTANCE);
-                ChatUtils.sendMessage(sender, "Le tournois a été marqué comme terminé.");
-                break;
-            case "round":
-                if (args[1] == null) {
-                    ChatUtils.sendMessage(sender, "Veuillez préciser un nombre valide.");
+            case "info":
+            case "status":
+                if (args.length == 1) {
+                    BattleManager.sendParticipantMatchesInfo((Player) sender);
                     break;
                 }
-                int round = Integer.parseInt(args[1]);
-                BattleHandler.round = round;
-                ChatUtils.sendMessage(sender, "La manche a bien été définie à " + round + ".");
+                int matchId = Integer.parseInt(args[1]);
+                BattleManager.sendMatchInfo((OfflinePlayer) sender, matchId);
                 break;
-            case "loc":
-                ArenaUtils.setLocation(
-                        Integer.parseInt(args[1]),
-                        Integer.parseInt(args[2]),
-                        ((Player) sender).getLocation()
-                );
-                ChatUtils.sendMessage(sender, "Position enregistrée.");
+            case "arenas":
+                BattleManager.sendArenaInfos((Player) sender);
                 break;
             case "debug":
-                ChatUtils.sendMessage(sender, "Round:" + BattleHandler.round);
-                ChatUtils.sendMessage(sender, "Players:" + BattleHandler.players.toString());
-                ChatUtils.sendMessage(sender, "Arenas:" + BattleHandler.arenas.toString());
+                sender.sendMessage(BattleManager.arenas.toString());
+                sender.sendMessage(BattleManager.waitingMatches.toString());
+                sender.sendMessage(BattleManager.registeredParticipants.toString());
+                break;
+            case "players":
+                BattleManager.sendParticipantInfos((Player) sender);
+                break;
+            case "accept":
+                if (args.length >= 2 && args[1] == null)
+                    break;
+                long id = Integer.parseInt(args[1]);
+                new MatchRequestCallbackTask((Player) sender, id).runTaskAsynchronously(INSTANCE);
+                break;
+            case "test":
                 break;
             default:
                 ChatUtils.sendMessage(sender, "Commande inconnue.");
@@ -75,6 +77,11 @@ public class EventCommand implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String alias, @Nonnull String[] args) {
-        return null;
+        return List.of(
+                "register",
+                "start",
+                "announce",
+                "finalize"
+        );
     }
 }
