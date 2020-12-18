@@ -5,7 +5,8 @@ import at.stefangeyer.challonge.model.Participant;
 import at.stefangeyer.challonge.model.query.ParticipantQuery;
 import fr.romitou.balkourabattle.BattleManager;
 import fr.romitou.balkourabattle.ChallongeManager;
-import fr.romitou.balkourabattle.utils.ChatUtils;
+import fr.romitou.balkourabattle.ChatManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -19,6 +20,7 @@ public class ParticipantsRegistrationTask extends BukkitRunnable {
         this.player = player;
     }
 
+     @SuppressWarnings("deprecation")
     @Override
     public void run() {
         try {
@@ -27,11 +29,16 @@ public class ParticipantsRegistrationTask extends BukkitRunnable {
                     .filter(participant -> !BattleManager.containsName(participant.getName()))
                     .forEach(participant -> BattleManager.registeredParticipants.put(
                             participant,
-                            UUID.fromString(participant.getMisc())
+                            participant.getMisc() != null
+                                    ? UUID.fromString(participant.getMisc())
+                                    : Bukkit.getOfflinePlayer(participant.getName()).getUniqueId()
                     ));
         } catch (DataAccessException e) {
             e.printStackTrace();
-            ChatUtils.modAlert(e.getMessage());
+            ChatManager.modAlert(
+                    "Les participants n'ont pas pu être récupérés auprès de Challonge.",
+                    "Cette tâche est récurrente et sera exécutée à nouveau dans 10 secondes."
+            );
         }
         BattleManager.getAvailablePlayers().forEach(player -> {
             if (!BattleManager.containsName(player.getName())) {
@@ -46,15 +53,18 @@ public class ParticipantsRegistrationTask extends BukkitRunnable {
                     );
                     if (participant != null) {
                         BattleManager.registeredParticipants.put(participant, player.getUniqueId());
-                        ChatUtils.sendMessage(player, "Vous avez été inscrit pour ce tournois !");
+                        ChatManager.sendMessage(player, "Vous avez été inscrit pour ce tournois !");
                     }
                     Thread.sleep(1000); // We wait one second in order to not surcharge Challonge's API.
                 } catch (InterruptedException | DataAccessException e) {
                     e.printStackTrace();
-                    ChatUtils.modAlert(e.getMessage());
+                    ChatManager.modAlert(
+                            "Le participant " + player.getName() + " n'a pas pu être inscrit.",
+                            "Assurez-vous que celui-ci est bien enregistré auprès de Challonge."
+                    );
                 }
             }
         });
-        ChatUtils.sendMessage(player, "Participants enregistrés.");
+        ChatManager.sendMessage(player, "Participants enregistrés.");
     }
 }

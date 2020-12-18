@@ -6,7 +6,7 @@ import fr.romitou.balkourabattle.tasks.MatchRequestCallbackTask;
 import fr.romitou.balkourabattle.tasks.ParticipantsRegistrationTask;
 import fr.romitou.balkourabattle.tasks.TournamentResettingTask;
 import fr.romitou.balkourabattle.tasks.TournamentStartingTask;
-import fr.romitou.balkourabattle.utils.ChatUtils;
+import fr.romitou.balkourabattle.ChatManager;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,22 +23,22 @@ public class EventCommand implements TabExecutor {
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, String[] args) {
         if (args.length < 1) {
-            ChatUtils.sendMessage(sender, "Commande invalide.");
+            ChatManager.sendMessage(sender, "Commande invalide.");
             return false;
         }
         switch (args[0]) {
             case "register":
             case "init":
-                ChatUtils.sendMessage(sender, "Début de l'enregistrement des joueurs. Cela peut prendre un moment ...");
+                ChatManager.sendMessage(sender, "Début de l'enregistrement des joueurs. Cela peut prendre un moment ...");
                 new ParticipantsRegistrationTask((Player) sender).runTaskAsynchronously(INSTANCE);
                 break;
             case "start":
                 new TournamentStartingTask().runTaskAsynchronously(INSTANCE);
-                ChatUtils.sendMessage(sender, "Le tournois a été ouvert et ne peut plus être modifié.");
+                ChatManager.sendMessage(sender, "Le tournois a été ouvert et ne peut plus être modifié.");
                 break;
             case "reset":
                 new TournamentResettingTask().runTaskAsynchronously(INSTANCE);
-                ChatUtils.sendMessage(sender, "Le tournois a été réinitialisé.");
+                ChatManager.sendMessage(sender, "Le tournois a été réinitialisé.");
                 break;
             case "info":
             case "status":
@@ -69,7 +69,7 @@ public class EventCommand implements TabExecutor {
             case "test":
                 break;
             default:
-                ChatUtils.sendMessage(sender, "Commande inconnue.");
+                ChatManager.sendMessage(sender, "Commande inconnue.");
                 return false;
         }
         return true;

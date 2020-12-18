@@ -2,7 +2,7 @@ package fr.romitou.balkourabattle.tasks;
 
 import at.stefangeyer.challonge.model.Match;
 import fr.romitou.balkourabattle.BattleManager;
-import fr.romitou.balkourabattle.utils.ChatUtils;
+import fr.romitou.balkourabattle.ChatManager;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -29,7 +29,7 @@ public class MatchesRequestTask extends BukkitRunnable {
             base.addExtra(accept);
             textComponents.add(base);
         });
-        BattleManager.getOnlineModerators().forEach(player -> ChatUtils.sendBeautifulMessage(player, textComponents));
+        BattleManager.getOnlineModerators().forEach(player -> ChatManager.sendBeautifulMessage(player, textComponents));
     }
 
 }

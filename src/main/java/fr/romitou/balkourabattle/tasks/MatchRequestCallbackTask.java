@@ -5,7 +5,7 @@ import fr.romitou.balkourabattle.BalkouraBattle;
 import fr.romitou.balkourabattle.BattleManager;
 import fr.romitou.balkourabattle.elements.Arena;
 import fr.romitou.balkourabattle.elements.ArenaStatus;
-import fr.romitou.balkourabattle.utils.ChatUtils;
+import fr.romitou.balkourabattle.ChatManager;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -23,16 +23,16 @@ public class MatchRequestCallbackTask extends BukkitRunnable {
     public void run() {
         Match match = BattleManager.getHandledMatch(matchId);
         if (match == null) {
-            ChatUtils.sendMessage(player, "Ce match est introuvable (" + matchId + ").");
+            ChatManager.sendMessage(player, "Ce match est introuvable (" + matchId + ").");
             return;
         }
         if (match.getUnderwayAt() != null) {
-            ChatUtils.sendMessage(player, "Ce match a déjà été validé par un autre modérateur.");
+            ChatManager.sendMessage(player, "Ce match a déjà été validé par un autre modérateur.");
             return;
         }
         Arena arena = BattleManager.getArenaByMatchId(match.getId());
         if (arena == null || arena.getArenaStatus() != ArenaStatus.VALIDATING) {
-            ChatUtils.sendMessage(player, "L'arène associée à ce match ne peut plus être utilisée.");
+            ChatManager.sendMessage(player, "L'arène associée à ce match ne peut plus être utilisée.");
             BattleManager.arenas.remove(arena);
             BattleManager.arenas.put(arena, null);
             return;

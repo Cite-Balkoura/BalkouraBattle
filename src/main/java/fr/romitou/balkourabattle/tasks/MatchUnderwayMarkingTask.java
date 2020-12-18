@@ -3,7 +3,7 @@ package fr.romitou.balkourabattle.tasks;
 import at.stefangeyer.challonge.exception.DataAccessException;
 import at.stefangeyer.challonge.model.Match;
 import fr.romitou.balkourabattle.ChallongeManager;
-import fr.romitou.balkourabattle.utils.ChatUtils;
+import fr.romitou.balkourabattle.ChatManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class MatchUnderwayMarkingTask extends BukkitRunnable {
@@ -20,7 +20,10 @@ public class MatchUnderwayMarkingTask extends BukkitRunnable {
             ChallongeManager.getChallonge().markMatchAsUnderway(match);
         } catch (DataAccessException e) {
             e.printStackTrace();
-            ChatUtils.modAlert(e.getMessage());
+            ChatManager.modAlert(
+                    "Le match " + match.getId() + " n'a pas pu être marqué comme en cours.",
+                    "Assurez-vous que celui-ci est bien marqué comme étant en cours sur Challonge."
+            );
         }
     }
 }

@@ -2,7 +2,7 @@ package fr.romitou.balkourabattle.tasks;
 
 import at.stefangeyer.challonge.model.Match;
 import fr.romitou.balkourabattle.BattleManager;
-import fr.romitou.balkourabattle.utils.ChatUtils;
+import fr.romitou.balkourabattle.ChatManager;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -38,7 +38,7 @@ public class MatchTimerTask extends BukkitRunnable {
                     BattleManager.freeze.removeAll(offlinePlayers);
                 offlinePlayers.stream()
                         .filter(player -> player.getPlayer() != null)
-                        .forEach(player -> player.getPlayer().sendActionBar(ChatUtils.getFormattedMessage(
+                        .forEach(player -> player.getPlayer().sendActionBar(ChatManager.getFormattedMessage(
                                 "§cDeath match §fdans " + fightTime + " seconde" + (fightTime > 1 ? "s" : "")) + ".")
                         );
                 fightTime--;
@@ -46,7 +46,7 @@ public class MatchTimerTask extends BukkitRunnable {
         } else {
             offlinePlayers.stream()
                     .filter(player -> player.getPlayer() != null)
-                    .forEach(player -> player.getPlayer().sendActionBar(ChatUtils.getFormattedMessage(
+                    .forEach(player -> player.getPlayer().sendActionBar(ChatManager.getFormattedMessage(
                             "Début du combat dans " + idleTime + " seconde" + (fightTime > 1 ? "s" : "")) + ".")
                     );
             idleTime--;

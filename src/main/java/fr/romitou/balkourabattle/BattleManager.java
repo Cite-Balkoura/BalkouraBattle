@@ -10,7 +10,6 @@ import fr.romitou.balkourabattle.elements.Arena;
 import fr.romitou.balkourabattle.elements.ArenaStatus;
 import fr.romitou.balkourabattle.elements.ArenaType;
 import fr.romitou.balkourabattle.elements.MatchScore;
-import fr.romitou.balkourabattle.utils.ChatUtils;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -30,6 +29,7 @@ public class BattleManager {
     public static HashMap<Arena, Match> arenas = new HashMap<>();
     public static HashMap<Match, Integer> timers = new HashMap<>();
     public static HashMap<Match, Integer> disconnections = new HashMap<>();
+    public static HashMap<OfflinePlayer, Integer> playerDisconnections = new HashMap<>();
     public static BiMap<Participant, UUID> registeredParticipants = HashBiMap.create();
 
     public static void registerArenasFromConfig() {
@@ -71,8 +71,9 @@ public class BattleManager {
     public static List<Match> getApprovalWaitingMatchs() {
         return arenas.entrySet()
                 .stream()
-                .filter(Objects::nonNull)
-                .filter(entry -> entry.getKey().getArenaStatus() == ArenaStatus.VALIDATING)
+                .filter(entry -> Objects.nonNull(entry.getValue()) && Objects.nonNull(entry.getKey()))
+                .filter(entry -> entry.getKey().getArenaStatus() == ArenaStatus.VALIDATING
+                        && entry.getValue().getState() == MatchState.OPEN)
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
     }
@@ -80,7 +81,7 @@ public class BattleManager {
     public static Arena getArenaByMatchId(long matchId) {
         return arenas.entrySet()
                 .stream()
-                .filter(Objects::nonNull)
+                .filter(entry -> Objects.nonNull(entry.getValue()) && Objects.nonNull(entry.getKey()))
                 .filter(entry -> entry.getValue().getId().equals(matchId))
                 .findFirst()
                 .map(Map.Entry::getKey)
@@ -220,13 +221,13 @@ public class BattleManager {
         if (offlinePlayer.getPlayer() == null) return;
         Player player = offlinePlayer.getPlayer();
         Match match = BattleManager.getMatch(matchId);
-        ChatUtils.sendBeautifulMessage(player, matchInfo(match).toArray(new String[0]));
+        ChatManager.sendBeautifulMessage(player, matchInfo(match).toArray(new String[0]));
     }
 
     public static void sendParticipantMatchesInfo(Player player) {
         Participant participant = getParticipant(player.getUniqueId());
         if (participant == null) {
-            ChatUtils.sendMessage(player, "Vous n'êtes pas inscrit pour participer à ce tournois.");
+            ChatManager.sendMessage(player, "Vous n'êtes pas inscrit pour participer à ce tournois.");
             return;
         }
         List<Match> matches = getAllMatches(participant.getId());
@@ -245,7 +246,7 @@ public class BattleManager {
                     textComponents.add(base);
                 });
         }
-        ChatUtils.sendBeautifulMessage(player, textComponents);
+        ChatManager.sendBeautifulMessage(player, textComponents);
     }
 
     public static List<String> matchInfo(Match match) {
@@ -291,7 +292,7 @@ public class BattleManager {
         } else {
             allArenas.forEach(arena -> stringList.add("   §e● §fArène " + arena.getId() + " §7| " + arena.getArenaStatus() + " §7| " + arena.getArenaType()));
         }
-        ChatUtils.sendBeautifulMessage(player, stringList.toArray(new String[0]));
+        ChatManager.sendBeautifulMessage(player, stringList.toArray(new String[0]));
     }
 
     public static void sendParticipantInfos(Player player) {
@@ -305,11 +306,15 @@ public class BattleManager {
         } else {
             allParticipants.forEach(participant -> stringList.add("   §e● §f " + participant.getName()));
         }
-        ChatUtils.sendBeautifulMessage(player, stringList.toArray(new String[0]));
+        ChatManager.sendBeautifulMessage(player, stringList.toArray(new String[0]));
     }
 
     public static boolean isTournamentStarted() {
         return ChallongeManager.getTournament().getState() == TournamentState.UNDERWAY;
+    }
+
+    public static void makeSpectator(Player player) {
+        player.setGameMode(GameMode.SPECTATOR);
     }
 
 }

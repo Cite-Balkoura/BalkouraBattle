@@ -6,8 +6,9 @@ import at.stefangeyer.challonge.model.query.MatchQuery;
 import fr.romitou.balkourabattle.BattleManager;
 import fr.romitou.balkourabattle.ChallongeManager;
 import fr.romitou.balkourabattle.elements.Arena;
+import fr.romitou.balkourabattle.elements.ArenaStatus;
 import fr.romitou.balkourabattle.elements.MatchScore;
-import fr.romitou.balkourabattle.utils.ChatUtils;
+import fr.romitou.balkourabattle.ChatManager;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -45,7 +46,9 @@ public class MatchStoppingTask extends BukkitRunnable {
             ChallongeManager.getChallonge().unmarkMatchAsUnderway(match);
             Arena arena = BattleManager.getArenaByMatchId(match.getId());
             if (arena != null) {
-                BattleManager.arenas.replace(arena, null);
+                BattleManager.arenas.remove(arena);
+                arena.setArenaStatus(ArenaStatus.FREE);
+                BattleManager.arenas.put(arena, null);
             } else {
                 // TODO: alert
             }
@@ -61,13 +64,13 @@ public class MatchStoppingTask extends BukkitRunnable {
             }
             offlinePlayers.stream()
                     .filter(player -> player.getPlayer() != null)
-                    .forEach(player -> ChatUtils.sendMessage(player.getPlayer(),
+                    .forEach(player -> ChatManager.sendMessage(player.getPlayer(),
                             Objects.equals(loser.getName(), player.getName())
                                     ? "Vous avez §cperdu§f ce match. Vous êtes spectateur."
                                     : "Vous avez §agagné§f ce match. Préparez-vous pour le prochain !"
                     ));
             if (loser.getPlayer() != null)
-                loser.getPlayer().setGameMode(GameMode.SPECTATOR);
+                BattleManager.makeSpectator(loser.getPlayer());
             // TODO: send messages
         } catch (DataAccessException e) {
             e.printStackTrace();
