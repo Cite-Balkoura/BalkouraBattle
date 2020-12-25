@@ -15,8 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 public class BattleHandler {
 

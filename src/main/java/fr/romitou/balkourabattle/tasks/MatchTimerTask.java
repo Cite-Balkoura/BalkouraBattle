@@ -38,7 +38,7 @@ public class MatchTimerTask extends BukkitRunnable {
                     BattleManager.freeze.removeAll(offlinePlayers);
                 offlinePlayers.stream()
                         .filter(player -> player.getPlayer() != null)
-                        .forEach(player -> player.getPlayer().sendActionBar(ChatManager.getFormattedMessage(
+                        .forEach(player -> player.getPlayer().sendMessage(ChatManager.getFormattedMessage(
                                 "§cDeath match §fdans " + fightTime + " seconde" + (fightTime > 1 ? "s" : "")) + ".")
                         );
                 fightTime--;
@@ -46,7 +46,7 @@ public class MatchTimerTask extends BukkitRunnable {
         } else {
             offlinePlayers.stream()
                     .filter(player -> player.getPlayer() != null)
-                    .forEach(player -> player.getPlayer().sendActionBar(ChatManager.getFormattedMessage(
+                    .forEach(player -> player.getPlayer().sendMessage(ChatManager.getFormattedMessage(
                             "Début du combat dans " + idleTime + " seconde" + (fightTime > 1 ? "s" : "")) + ".")
                     );
             idleTime--;

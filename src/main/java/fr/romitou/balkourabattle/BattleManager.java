@@ -2,6 +2,7 @@ package fr.romitou.balkourabattle;
 
 import at.stefangeyer.challonge.model.Match;
 import at.stefangeyer.challonge.model.Participant;
+import at.stefangeyer.challonge.model.Tournament;
 import at.stefangeyer.challonge.model.enumeration.MatchState;
 import at.stefangeyer.challonge.model.enumeration.TournamentState;
 import com.google.common.collect.BiMap;
@@ -13,6 +14,7 @@ import fr.romitou.balkourabattle.elements.MatchScore;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -38,8 +40,16 @@ public class BattleManager {
         config.getKeys(false).forEach(key -> arenas.put(new Arena(
                 config.getInt(key + ".id"),
                 new Location[]{
-                        config.getLocation(key + ".firstLocation"),
-                        config.getLocation(key + ".secondLocation")
+                        getLocation(
+                                config.getDouble(key + "firstLocation.x"),
+                                config.getDouble(key + "firstLocation.y"),
+                                config.getDouble(key + "firstLocation.z")
+                        ),
+                        getLocation(
+                                config.getDouble(key + "secondLocation.x"),
+                                config.getDouble(key + "secondLocation.y"),
+                                config.getDouble(key + "secondLocation.z")
+                        ),
                 },
                 ArenaStatus.FREE,
                 config.getBoolean(key + ".isFinalArena") ? ArenaType.FINAL : ArenaType.CLASSIC
@@ -310,11 +320,23 @@ public class BattleManager {
     }
 
     public static boolean isTournamentStarted() {
+        Tournament tournament = ChallongeManager.getTournament();
+        if (tournament == null) return false;
         return ChallongeManager.getTournament().getState() == TournamentState.UNDERWAY;
     }
 
     public static void makeSpectator(Player player) {
         player.setGameMode(GameMode.SPECTATOR);
+    }
+
+    public static Location getLocation(double x, double y, double z) {
+        return new Location(Bukkit.getWorld("world"), x, y, z);
+    }
+
+    public static Boolean hasPermission(CommandSender sender, String permission) {
+        if (sender.hasPermission(permission)) return true;
+        ChatManager.sendMessage(sender, "Vous n'avez pas la permission d'exécuter cette commande.");
+        return false;
     }
 
 }

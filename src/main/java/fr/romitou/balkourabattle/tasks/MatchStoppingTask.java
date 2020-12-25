@@ -5,11 +5,10 @@ import at.stefangeyer.challonge.model.Match;
 import at.stefangeyer.challonge.model.query.MatchQuery;
 import fr.romitou.balkourabattle.BattleManager;
 import fr.romitou.balkourabattle.ChallongeManager;
+import fr.romitou.balkourabattle.ChatManager;
 import fr.romitou.balkourabattle.elements.Arena;
 import fr.romitou.balkourabattle.elements.ArenaStatus;
 import fr.romitou.balkourabattle.elements.MatchScore;
-import fr.romitou.balkourabattle.ChatManager;
-import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 

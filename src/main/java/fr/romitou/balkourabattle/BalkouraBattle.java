@@ -2,7 +2,6 @@ package fr.romitou.balkourabattle;
 
 import fr.romitou.balkourabattle.commands.EventCommand;
 import fr.romitou.balkourabattle.tasks.*;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;

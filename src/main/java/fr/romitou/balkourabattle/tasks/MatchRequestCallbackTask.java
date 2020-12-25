@@ -3,9 +3,9 @@ package fr.romitou.balkourabattle.tasks;
 import at.stefangeyer.challonge.model.Match;
 import fr.romitou.balkourabattle.BalkouraBattle;
 import fr.romitou.balkourabattle.BattleManager;
+import fr.romitou.balkourabattle.ChatManager;
 import fr.romitou.balkourabattle.elements.Arena;
 import fr.romitou.balkourabattle.elements.ArenaStatus;
-import fr.romitou.balkourabattle.ChatManager;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -37,6 +37,7 @@ public class MatchRequestCallbackTask extends BukkitRunnable {
             BattleManager.arenas.put(arena, null);
             return;
         }
+        BattleManager.getOnlineModerators().forEach(player -> ChatManager.sendMessage(player, "Match " + match.getIdentifier() + " accepté par " + player.getName() + "."));
         new MatchStartingTask(match, arena).runTaskAsynchronously(BalkouraBattle.getInstance());
     }
 }

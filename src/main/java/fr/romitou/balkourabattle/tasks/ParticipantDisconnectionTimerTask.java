@@ -1,7 +1,6 @@
 package fr.romitou.balkourabattle.tasks;
 
 import at.stefangeyer.challonge.model.Match;
-import fr.romitou.balkourabattle.BalkouraBattle;
 import fr.romitou.balkourabattle.BattleHandler;
 import fr.romitou.balkourabattle.BattleManager;
 import fr.romitou.balkourabattle.ChatManager;
@@ -31,7 +30,7 @@ public class ParticipantDisconnectionTimerTask extends BukkitRunnable {
         }
         offlinePlayers.stream()
                 .filter(offlinePlayer -> offlinePlayer.getPlayer() != null)
-                .forEach(offlinePlayer -> offlinePlayer.getPlayer().sendActionBar(ChatManager.getFormattedMessage(
+                .forEach(offlinePlayer -> offlinePlayer.getPlayer().sendMessage(ChatManager.getFormattedMessage(
                         "Victoire dans " + time + " seconde" + (time > 1 ? "s" : "") + "."
                 )));
         time--;

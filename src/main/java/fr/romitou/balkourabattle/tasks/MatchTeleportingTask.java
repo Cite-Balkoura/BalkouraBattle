@@ -32,7 +32,7 @@ public class MatchTeleportingTask extends BukkitRunnable {
         for (int i = 0; i < locations.length && i < offlinePlayers.size(); i++) {
             OfflinePlayer offlinePlayer = offlinePlayers.get(i);
             if (offlinePlayer.getPlayer() != null)
-                offlinePlayer.getPlayer().teleportAsync(locations[i]);
+                offlinePlayer.getPlayer().teleport(locations[i]);
         }
     }
 }

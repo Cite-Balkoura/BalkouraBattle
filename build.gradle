@@ -17,11 +17,14 @@ shadowJar {
 
 repositories {
     mavenCentral()
-    maven { url 'https://papermc.io/repo/repository/maven-public/' }
+    flatDir { dirs 'libs' }
+    maven { url 'https://repo.viaversion.com' }
+    maven { url 'https://oss.sonatype.org/content/groups/public/' }
 }
 
 dependencies {
-    compileOnly('com.destroystokyo.paper:paper-api:1.16.3-R0.1-SNAPSHOT')
+    compileOnly name: 'paper-1.8.8-443'
+    compileOnly('us.myles:viaversion:3.2.1')
     compile('at.stefangeyer.challonge:core:2.1.0')
     compile('at.stefangeyer.challonge.serializer:gson:2.1.0')
     compile('at.stefangeyer.challonge.rest:retrofit:2.1.0')
@@ -32,7 +35,4 @@ dependencies {
 
 test {
     useJUnitPlatform()
-    testLogging {
-        events("passed", "skipped", "failed")
-    }
 }
