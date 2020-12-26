@@ -88,8 +88,9 @@ public class EventCommand implements TabExecutor {
             case "setup":
                 if (!BattleManager.hasPermission(sender, "modo.event")) break;
                 BalkouraBattle.getConfigFile().set("arenas." + args[1] + "." + (Integer.parseInt(args[2]) == 1 ? "firstLocation" : "secondLocation") + ".x", ((Player) sender).getLocation().getX());
-                BalkouraBattle.getConfigFile().set("arenas." + args[1] + "." + (Integer.parseInt(args[2]) == 1 ? "firstLocation" : "secondLocation") + ".x", ((Player) sender).getLocation().getY());
-                BalkouraBattle.getConfigFile().set("arenas." + args[1] + "." + (Integer.parseInt(args[2]) == 1 ? "firstLocation" : "secondLocation") + ".x", ((Player) sender).getLocation().getZ());
+                BalkouraBattle.getConfigFile().set("arenas." + args[1] + "." + (Integer.parseInt(args[2]) == 1 ? "firstLocation" : "secondLocation") + ".y", ((Player) sender).getLocation().getY());
+                BalkouraBattle.getConfigFile().set("arenas." + args[1] + "." + (Integer.parseInt(args[2]) == 1 ? "firstLocation" : "secondLocation") + ".z", ((Player) sender).getLocation().getZ());
+                BalkouraBattle.getInstance().saveConfig();
                 ChatManager.sendMessage(sender, "Position définie.");
                 break;
             default:

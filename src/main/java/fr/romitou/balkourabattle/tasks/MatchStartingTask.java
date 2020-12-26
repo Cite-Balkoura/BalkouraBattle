@@ -72,7 +72,7 @@ public class MatchStartingTask extends BukkitRunnable {
 
         BattleManager.initPlayers(offlinePlayers);
         BattleManager.freeze.addAll(offlinePlayers);
-        BattleManager.getOnlineModerators().forEach(player -> ChatManager.sendMessage(player, "Le match " + match.getIdentifier() + "vient de démarrer."));
+        BattleManager.getOnlineModerators().forEach(player -> ChatManager.sendMessage(player, "Le match " + match.getIdentifier() + " vient de démarrer."));
     }
 
 }

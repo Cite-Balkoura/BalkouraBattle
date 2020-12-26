@@ -31,7 +31,7 @@ public class BalkouraBattle extends JavaPlugin {
         new MatchesSyncTask().runTaskTimerAsynchronously(this, 300, 300);
         new MatchesUpdateTask().runTaskTimerAsynchronously(this, 400, 300);
         new MatchesRequestTask().runTaskTimerAsynchronously(this, 500, 300);
-        new BalkouraBroadcastTask().runTaskTimerAsynchronously(this, 0, 600);
+        new BalkouraBroadcastTask().runTaskTimerAsynchronously(this, 0, 1200);
         new TournamentFetchTask().runTaskAsynchronously(this);
         getServer().getPluginManager().registerEvents(new EventListener(), this);
 

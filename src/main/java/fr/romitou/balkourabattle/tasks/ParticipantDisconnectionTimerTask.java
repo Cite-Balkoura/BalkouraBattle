@@ -28,11 +28,12 @@ public class ParticipantDisconnectionTimerTask extends BukkitRunnable {
             this.cancel();
             BattleHandler.handleDisconnectionTimerEnd(match, offlinePlayers);
         }
-        offlinePlayers.stream()
-                .filter(offlinePlayer -> offlinePlayer.getPlayer() != null)
-                .forEach(offlinePlayer -> offlinePlayer.getPlayer().sendMessage(ChatManager.getFormattedMessage(
-                        "Victoire dans " + time + " seconde" + (time > 1 ? "s" : "") + "."
-                )));
+        if (BattleManager.intAnnouncements.contains(time))
+            offlinePlayers.stream()
+                    .filter(offlinePlayer -> offlinePlayer.getPlayer() != null)
+                    .forEach(offlinePlayer -> offlinePlayer.getPlayer().sendMessage(ChatManager.getFormattedMessage(
+                            "Victoire dans " + time + " seconde" + (time > 1 ? "s" : "") + "."
+                    )));
         time--;
     }
 }

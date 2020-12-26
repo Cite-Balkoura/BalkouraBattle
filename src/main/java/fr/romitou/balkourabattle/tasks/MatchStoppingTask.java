@@ -3,12 +3,15 @@ package fr.romitou.balkourabattle.tasks;
 import at.stefangeyer.challonge.exception.DataAccessException;
 import at.stefangeyer.challonge.model.Match;
 import at.stefangeyer.challonge.model.query.MatchQuery;
+import fr.romitou.balkourabattle.BalkouraBattle;
 import fr.romitou.balkourabattle.BattleManager;
 import fr.romitou.balkourabattle.ChallongeManager;
 import fr.romitou.balkourabattle.ChatManager;
 import fr.romitou.balkourabattle.elements.Arena;
 import fr.romitou.balkourabattle.elements.ArenaStatus;
 import fr.romitou.balkourabattle.elements.MatchScore;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -29,7 +32,7 @@ public class MatchStoppingTask extends BukkitRunnable {
         try {
             MatchScore matchScore = new MatchScore(match.getScoresCsv());
 
-            // There scores are ex aequo. This can happen when a player disconnect and not reconnect, so we need
+            // These scores are ex aequo. This can happen when a player disconnect and not reconnect, so we need
             // to take the last set winner (as he doesn't disconnected).
             if (matchScore.getWinSets(true) == matchScore.getWinSets(false))
                 isPlayer1 = matchScore.getSet(matchScore.getCurrentRound()).getScore(0) == 1;
@@ -63,13 +66,20 @@ public class MatchStoppingTask extends BukkitRunnable {
             }
             offlinePlayers.stream()
                     .filter(player -> player.getPlayer() != null)
-                    .forEach(player -> ChatManager.sendMessage(player.getPlayer(),
-                            Objects.equals(loser.getName(), player.getName())
-                                    ? "Vous avez §cperdu§f ce match. Vous êtes spectateur."
-                                    : "Vous avez §agagné§f ce match. Préparez-vous pour le prochain !"
-                    ));
+                    .forEach(player -> {
+                                ChatManager.sendMessage(player.getPlayer(),
+                                        Objects.equals(loser.getName(), player.getName())
+                                                ? "Vous avez §cperdu§f ce match. Vous êtes spectateur."
+                                                : "Vous avez §agagné§f ce match. Préparez-vous pour le prochain !"
+                                );
+                                player.getPlayer().getInventory().clear();
+                            }
+                    );
             if (loser.getPlayer() != null)
-                BattleManager.makeSpectator(loser.getPlayer());
+                Bukkit.getScheduler().runTask(
+                        BalkouraBattle.getInstance(),
+                        () -> loser.getPlayer().setGameMode(GameMode.SPECTATOR)
+                );
             // TODO: send messages
         } catch (DataAccessException e) {
             e.printStackTrace();

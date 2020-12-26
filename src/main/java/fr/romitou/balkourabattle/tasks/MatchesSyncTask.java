@@ -20,7 +20,7 @@ public class MatchesSyncTask extends BukkitRunnable {
             e.printStackTrace();
             ChatManager.modAlert(
                     "Les matchs n'ont pas pu être synchronisé avec Challonge.",
-                    "Cette tâche est récurrente et sera exécutée à nouveau dans 10 secondes."
+                    "Cette tâche est récurrente et sera exécutée à nouveau."
             );
         }
     }

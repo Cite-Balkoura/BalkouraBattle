@@ -33,22 +33,24 @@ public class BattleManager {
     public static HashMap<Match, Integer> disconnections = new HashMap<>();
     public static HashMap<OfflinePlayer, Integer> playerDisconnections = new HashMap<>();
     public static BiMap<Participant, UUID> registeredParticipants = HashBiMap.create();
+    public static List<Integer> intAnnouncements = new LinkedList<>(List.of(50, 40, 30, 20, 10, 5, 3, 2, 1));
 
     public static void registerArenasFromConfig() {
         ConfigurationSection config = BalkouraBattle.getConfigFile().getConfigurationSection("arenas");
         assert config != null;
+        System.out.println(config.getInt("1.firstLocation.x"));
         config.getKeys(false).forEach(key -> arenas.put(new Arena(
                 config.getInt(key + ".id"),
                 new Location[]{
                         getLocation(
-                                config.getDouble(key + "firstLocation.x"),
-                                config.getDouble(key + "firstLocation.y"),
-                                config.getDouble(key + "firstLocation.z")
+                                config.getInt(key + ".firstLocation.x"),
+                                config.getInt(key + ".firstLocation.y"),
+                                config.getInt(key + ".firstLocation.z")
                         ),
                         getLocation(
-                                config.getDouble(key + "secondLocation.x"),
-                                config.getDouble(key + "secondLocation.y"),
-                                config.getDouble(key + "secondLocation.z")
+                                config.getInt(key + ".secondLocation.x"),
+                                config.getInt(key + ".secondLocation.y"),
+                                config.getInt(key + ".secondLocation.z")
                         ),
                 },
                 ArenaStatus.FREE,
@@ -102,8 +104,8 @@ public class BattleManager {
         return arenas.values()
                 .stream()
                 .filter(Objects::nonNull)
-                .filter(match -> match.getPlayer1Id().equals(playerId)
-                        || match.getPlayer2Id().equals(playerId))
+                .filter(match -> (match.getPlayer1Id().equals(playerId)
+                        || match.getPlayer2Id().equals(playerId)))
                 .findFirst()
                 .orElse(null);
     }
@@ -300,7 +302,7 @@ public class BattleManager {
             stringList.add("   §fAucune arène enregistrée.");
             stringList.add("   §7Enregistrez-les dans le fichier de configuration.");
         } else {
-            allArenas.forEach(arena -> stringList.add("   §e● §fArène " + arena.getId() + " §7| " + arena.getArenaStatus() + " §7| " + arena.getArenaType()));
+            allArenas.forEach(arena -> stringList.add("   §e● §fArène " + arena.getId() + " §7| " + arena.getArenaStatus() + " §7| " + arena.getArenaType() + " §7| §fx:" + arena.getLocations()[0].getX() + ", y:" + arena.getLocations()[0].getY() + ", z:" + arena.getLocations()[0].getZ()));
         }
         ChatManager.sendBeautifulMessage(player, stringList.toArray(new String[0]));
     }
@@ -325,11 +327,7 @@ public class BattleManager {
         return ChallongeManager.getTournament().getState() == TournamentState.UNDERWAY;
     }
 
-    public static void makeSpectator(Player player) {
-        player.setGameMode(GameMode.SPECTATOR);
-    }
-
-    public static Location getLocation(double x, double y, double z) {
+    public static Location getLocation(int x, int y, int z) {
         return new Location(Bukkit.getWorld("world"), x, y, z);
     }
 

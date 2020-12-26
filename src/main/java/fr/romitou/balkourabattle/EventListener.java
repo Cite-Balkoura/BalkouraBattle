@@ -1,5 +1,6 @@
 package fr.romitou.balkourabattle;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,20 +14,14 @@ import us.myles.ViaVersion.api.ViaAPI;
 
 public class EventListener implements Listener {
 
-    private static final BalkouraBattle INSTANCE = BalkouraBattle.getInstance();
     private static final ViaAPI<?> VIA_API = Via.getAPI();
 
     @EventHandler
-    public void playerJoin(PlayerJoinEvent event) {
-        event.setJoinMessage(null);
-        int protocol = VIA_API.getPlayerVersion(event.getPlayer().getUniqueId());
-        if (protocol >= 48)
-            ChatManager.sendMessage(event.getPlayer(), "§cAttention, le PvP de cet événement est en 1.8. N'hésitez pas à vous connecter avec le client Minecraft officiel en 1.8.");
-    }
-
-    @EventHandler
     public void playerMoveEvent(PlayerMoveEvent event) {
-        if (BattleManager.freeze.contains(event.getPlayer())) event.setCancelled(true);
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if (BattleManager.freeze.contains(event.getPlayer()) && from != to)
+            event.getPlayer().teleport(from);
     }
 
     @EventHandler
@@ -34,6 +29,7 @@ public class EventListener implements Listener {
         if (!(e.getEntity() instanceof Player)) return;
         Player player = (Player) e.getEntity();
         if (!(e.getFinalDamage() >= player.getHealth())) return;
+        player.setHealth(20);
         e.setCancelled(true);
         BattleHandler.handleDeath(player);
     }
@@ -48,11 +44,16 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void playerConnectEvent(PlayerJoinEvent event) {
+        event.setJoinMessage(null);
+        int protocol = VIA_API.getPlayerVersion(event.getPlayer().getUniqueId());
+        if (protocol >= 48)
+            ChatManager.sendMessage(event.getPlayer(), "§cAttention, le PvP de cet événement est en 1.8. N'hésitez pas à vous connecter avec le client Minecraft officiel en 1.8.");
         BattleHandler.handleJoin(event.getPlayer());
     }
 
     @EventHandler
     public void playerDisconnectEvent(PlayerQuitEvent event) {
+        event.setQuitMessage(null);
         BattleHandler.handleDisconnect(event.getPlayer());
     }
 
