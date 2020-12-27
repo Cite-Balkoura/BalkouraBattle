@@ -25,6 +25,7 @@ repositories {
 dependencies {
     compileOnly name: 'paper-1.8.8-443'
     compileOnly('us.myles:viaversion:3.2.1')
+    compileOnly('net.md-5:bungeecord-api:1.16-R0.4-SNAPSHOT')
     compile('at.stefangeyer.challonge:core:2.1.0')
     compile('at.stefangeyer.challonge.serializer:gson:2.1.0')
     compile('at.stefangeyer.challonge.rest:retrofit:2.1.0')

@@ -20,7 +20,7 @@ public class ParticipantsRegistrationTask extends BukkitRunnable {
         this.player = player;
     }
 
-     @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")
     @Override
     public void run() {
         try {

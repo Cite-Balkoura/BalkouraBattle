@@ -25,8 +25,8 @@ public class ParticipantDisconnectionTimerTask extends BukkitRunnable {
     @Override
     public void run() {
         if (time <= 0) {
-            this.cancel();
             BattleHandler.handleDisconnectionTimerEnd(match, offlinePlayers);
+            this.cancel();
         }
         if (BattleManager.intAnnouncements.contains(time))
             offlinePlayers.stream()

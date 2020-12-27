@@ -13,12 +13,16 @@ import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
+import us.myles.ViaVersion.api.Via;
+import us.myles.ViaVersion.api.ViaAPI;
 
 import java.util.List;
 
 public class BattleHandler {
 
-    public static void handleEndRound(Match match, long loserId) {
+    private static final ViaAPI<?> VIA_API = Via.getAPI();
+
+    public static void handleEndRound(Match match, long loserId, List<OfflinePlayer> offlinePlayers) {
         MatchScore matchScore = new MatchScore(match.getScoresCsv());
 
         // Update scores for the current set and the match's scores.
@@ -41,6 +45,10 @@ public class BattleHandler {
             // TODO
             return;
         }
+
+        offlinePlayers.stream()
+                .filter(offlinePlayer -> offlinePlayer.getPlayer() != null)
+                .forEach(player -> player.getPlayer().sendMessage(BattleManager.matchInfo(match).toArray(new String[0])));
 
         // Renewing the match as the score requirements are not meet.
         new MatchStartingTask(match, arena).runTaskAsynchronously(BalkouraBattle.getInstance());
@@ -68,7 +76,7 @@ public class BattleHandler {
         }
 
         BattleManager.stopTimer(match);
-        handleEndRound(match, participant.getId());
+        handleEndRound(match, participant.getId(), offlinePlayers);
     }
 
     public static void handleJoin(Player player) {
@@ -76,24 +84,37 @@ public class BattleHandler {
         if (participant == null) {
             if (BattleManager.isTournamentStarted()) {
                 ChatManager.sendMessage(player, "Le tournois a déjà commencé ! Vous êtes spectateur.");
-                player.setGameMode(GameMode.SPECTATOR);
             } else {
                 ChatManager.sendMessage(player, "Bienvenue, le tournois va commencer dans quelques instants.");
-                player.setGameMode(GameMode.ADVENTURE);
             }
         } else {
             Match match = BattleManager.getCurrentMatchByPlayerId(participant.getId());
-            if (match == null) return;
-            handleConnectWhileFighting(match, player);
+            if (match != null)
+                handleConnectWhileFighting(match, player);
         }
+
+        player.teleport(BattleManager.getSpawn());
+        player.setGameMode(GameMode.SPECTATOR);
+
+        if (VIA_API.getPlayerVersion(player.getUniqueId()) >= 48)
+            player.sendMessage("§c§LATTENTION! §7Il vous est fortement recommandé vous connecter avec le client Minecraft officiel en 1.8 afin de bénéficier du PvP 1.8 et d'éviter quelques déconnexions imprévues lors de vos combats.");
     }
 
     public static void handleDisconnect(Player player) {
         System.out.println("Handle disconnect for " + player.getName());
         Participant participant = BattleManager.getParticipant(player.getUniqueId());
-        if (participant == null) return;
+        if (participant == null) {
+            ChatManager.modAlert("Le participant pour le joueur " + player.getName() + " n'a pas été trouvé."
+                    + "Le match est donc toujours en cours et doit être stoppé."
+            );
+            return;
+        }
         Match match = BattleManager.getCurrentMatchByPlayerId(participant.getId());
-        if (match == null) return;
+        if (match == null) {
+            ChatManager.modAlert("Le match du joueur " + participant.getName() + " n'a pas été trouvé." +
+                    "Le match est donc toujours en cours et doit être stoppé.");
+            return;
+        }
         handleDisconnectWhileFighting(match);
     }
 
@@ -101,12 +122,16 @@ public class BattleHandler {
         BattleManager.stopDisconnectionTimer(match);
         List<OfflinePlayer> offlinePlayers = BattleManager.getPlayers(match);
         if (offlinePlayers == null) {
-            // TODO: alert
+            ChatManager.modAlert("Les joueurs du match " + match.getIdentifier() + " n'ont pas été trouvé."
+                    + "Le match n'a donc pas redémarré."
+            );
             return;
         }
         Arena arena = BattleManager.getArenaByMatchId(match.getId());
         if (arena == null || arena.getArenaStatus() != ArenaStatus.BUSY) {
-            // TODO: alert
+            ChatManager.modAlert("Une erreur avec le match " + match.getIdentifier() + " est survenue."
+                    + "Le match n'a donc pas redémarré."
+            );
             return;
         }
         offlinePlayers.stream()
@@ -126,12 +151,16 @@ public class BattleHandler {
         BattleManager.stopTimer(match);
         Arena arena = BattleManager.getArenaByMatchId(match.getId());
         if (arena == null || arena.getArenaStatus() != ArenaStatus.BUSY) {
-            // TODO: alert
+            ChatManager.modAlert("Une erreur avec le match " + match.getIdentifier() + " est survenue."
+                    + "Le match n'a donc pas été arrêté."
+            );
             return;
         }
         List<OfflinePlayer> offlinePlayers = BattleManager.getPlayers(match);
         if (offlinePlayers == null) {
-            // TODO: alert
+            ChatManager.modAlert("Les joueurs du match " + match.getIdentifier() + " n'ont pas été trouvé."
+                    + "Le match n'a donc pas été arrêté."
+            );
             return;
         }
         OfflinePlayer disconnectedPlayer = offlinePlayers.stream()
@@ -139,16 +168,16 @@ public class BattleHandler {
                 .findFirst()
                 .orElse(null);
         if (disconnectedPlayer == null) {
-            // TODO: alert
+            ChatManager.modAlert("Les joueur déconnecté du match " + match.getIdentifier() + " n'a pas été trouvé."
+                    + "Le match n'a donc pas été arrêté."
+            );
             return;
         }
         offlinePlayers.stream()
                 .filter(offlinePlayer -> offlinePlayer.getPlayer() != null)
-                .forEach(offlinePlayer -> ChatManager.sendMessage(
-                        offlinePlayer.getPlayer(),
+                .forEach(offlinePlayer -> offlinePlayer.getPlayer().sendMessage(
                         "Votre adversaire s'est déconnecté. Celui-ci doit se reconnecter dans la minute, " +
-                                "ou vous serez désigné comme vainqueur de cette manche. Si celui-ci se déconnecte " +
-                                "à nouveau, vous serez instantanément gagnant de ce match."
+                                "ou vous serez désigné comme vainqueur de cette manche. Merci de ne pas vous déconnecter."
                 ));
         BukkitTask bukkitTask = new ParticipantDisconnectionTimerTask(match, 60)
                 .runTaskTimerAsynchronously(BalkouraBattle.getInstance(), 0, 20);
@@ -164,17 +193,23 @@ public class BattleHandler {
                 .findFirst()
                 .orElse(null);
         if (disconnectedPlayer == null) {
-            // TODO: alert
+            ChatManager.modAlert(
+                    "Le joueur déconnecté du match " + match.getIdentifier() + " n'a pas pu être récupéré.",
+                    "Le match n'a pas été continué. Merci de redémarrer le match via Challonge."
+            );
             return;
         }
         int disconnectionCount = BattleManager.playerDisconnections.getOrDefault(disconnectedPlayer, 1);
         Participant participant = BattleManager.getParticipant(disconnectedPlayer.getUniqueId());
         if (participant == null) {
-            // TODO: alert
+            ChatManager.modAlert(
+                    "Le participant associé au joueur déconnecté du match " + match.getIdentifier(),
+                    "n'a pas pu être récupéré, le match n'a pas été continué. Merci de le redémarrer via Challonge."
+            );
             return;
         }
         if (disconnectionCount == 1)
-            handleEndRound(match, participant.getId());
+            handleEndRound(match, participant.getId(), offlinePlayers);
         else if (disconnectionCount >= 2)
             new MatchStoppingTask(match).runTaskAsynchronously(BalkouraBattle.getInstance());
     }

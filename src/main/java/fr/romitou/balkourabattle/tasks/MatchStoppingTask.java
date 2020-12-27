@@ -16,12 +16,11 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
-import java.util.Objects;
 
 public class MatchStoppingTask extends BukkitRunnable {
 
-    private final Match match;
     private static Boolean isPlayer1;
+    private final Match match;
 
     public MatchStoppingTask(Match match) {
         this.match = match;
@@ -30,6 +29,11 @@ public class MatchStoppingTask extends BukkitRunnable {
     @Override
     public void run() {
         try {
+            List<OfflinePlayer> players = BattleManager.getPlayers(match);
+            if (players == null) {
+                return;
+            }
+
             MatchScore matchScore = new MatchScore(match.getScoresCsv());
 
             // These scores are ex aequo. This can happen when a player disconnect and not reconnect, so we need
@@ -52,35 +56,52 @@ public class MatchStoppingTask extends BukkitRunnable {
                 arena.setArenaStatus(ArenaStatus.FREE);
                 BattleManager.arenas.put(arena, null);
             } else {
-                // TODO: alert
+                ChatManager.modAlert("L'arène du match " + match.getIdentifier() + " n'a pas été trouvé.",
+                        "Vous devez insérer ces scores manuellement : " + matchScore.getScoreCsv() + "."
+                );
+                return;
             }
             List<OfflinePlayer> offlinePlayers = BattleManager.getPlayers(match);
             if (offlinePlayers == null) {
-                // TODO: alert
+                ChatManager.modAlert("Impossible de récupérer les joueurs du match " + match.getIdentifier() + ".",
+                        "Assurez-vous qu'ils soient enregistrés avec /battle register.",
+                        "Vous devez insérer ces scores manuellement : " + matchScore.getScoreCsv() + "."
+                );
                 return;
             }
             OfflinePlayer loser = BattleManager.getPlayer(isPlayer1 ? match.getPlayer2Id() : match.getPlayer1Id());
             if (loser == null) {
-                // TODO: alert
+                ChatManager.modAlert("Impossible de récupérer le perdant du match " + match.getIdentifier() + ".",
+                        "Vous devez insérer ces scores manuellement : " + matchScore.getScoreCsv() + "."
+                );
                 return;
             }
-            offlinePlayers.stream()
-                    .filter(player -> player.getPlayer() != null)
-                    .forEach(player -> {
-                                ChatManager.sendMessage(player.getPlayer(),
-                                        Objects.equals(loser.getName(), player.getName())
-                                                ? "Vous avez §cperdu§f ce match. Vous êtes spectateur."
-                                                : "Vous avez §agagné§f ce match. Préparez-vous pour le prochain !"
-                                );
-                                player.getPlayer().getInventory().clear();
-                            }
-                    );
-            if (loser.getPlayer() != null)
-                Bukkit.getScheduler().runTask(
-                        BalkouraBattle.getInstance(),
-                        () -> loser.getPlayer().setGameMode(GameMode.SPECTATOR)
+            OfflinePlayer winner = BattleManager.getPlayer(isPlayer1 ? match.getPlayer1Id() : match.getPlayer2Id());
+            if (winner == null) {
+                ChatManager.modAlert("Impossible de récupérer le gagnant du match " + match.getIdentifier() + ".",
+                        "Vous devez insérer ces scores manuellement : " + matchScore.getScoreCsv() + "."
                 );
-            // TODO: send messages
+                return;
+            }
+            Bukkit.getScheduler().runTask(BalkouraBattle.getInstance(), () -> {
+                if (winner.getPlayer() != null) {
+                    winner.getPlayer().setGameMode(GameMode.SPECTATOR);
+                    winner.getPlayer().sendMessage("§a§lBRAVO! §7Vous avez §agagné§7 ce match. Votre prochain match va démarrer dans quelques instants.");
+                    winner.getPlayer().getInventory().clear();
+                    winner.getPlayer().getActivePotionEffects()
+                            .forEach(potionEffect -> winner.getPlayer().removePotionEffect(potionEffect.getType()));
+                    winner.getPlayer().teleport(BattleManager.getSpawn());
+                }
+                if (loser.getPlayer() != null) {
+                    loser.getPlayer().setGameMode(GameMode.SPECTATOR);
+                    loser.getPlayer().sendMessage("§c§lPERDU! §7Vous avez §cperdu§7 ce match. Vous êtes désormais spectateur, vous pouvez visiter les différentes arèens.");
+                    loser.getPlayer().getInventory().clear();
+                    loser.getPlayer().getActivePotionEffects()
+                            .forEach(potionEffect -> loser.getPlayer().removePotionEffect(potionEffect.getType()));
+                    loser.getPlayer().teleport(BattleManager.getSpawn());
+                }
+            });
+            Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage("§5§lGG! §d" + winner.getName() + "§7 vient de remporter le match contre §d" + loser.getName() + "§7."));
         } catch (DataAccessException e) {
             e.printStackTrace();
         }

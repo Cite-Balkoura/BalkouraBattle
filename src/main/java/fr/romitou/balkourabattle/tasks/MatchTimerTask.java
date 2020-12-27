@@ -14,7 +14,9 @@ public class MatchTimerTask extends BukkitRunnable {
 
     private final Match match;
     private final List<OfflinePlayer> offlinePlayers;
-    private int fightTime, idleTime, endTime;
+    private int fightTime;
+    private int idleTime;
+    private final int endTime;
 
     public MatchTimerTask(Match match, int fightTime) {
         this.match = match;

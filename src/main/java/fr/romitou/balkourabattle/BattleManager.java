@@ -16,6 +16,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -28,12 +29,14 @@ public class BattleManager {
 
     public static List<Match> waitingMatches = new ArrayList<>();
     public static List<OfflinePlayer> freeze = new ArrayList<>();
+    public static List<OfflinePlayer> combat = new ArrayList<>();
     public static HashMap<Arena, Match> arenas = new HashMap<>();
     public static HashMap<Match, Integer> timers = new HashMap<>();
     public static HashMap<Match, Integer> disconnections = new HashMap<>();
     public static HashMap<OfflinePlayer, Integer> playerDisconnections = new HashMap<>();
     public static BiMap<Participant, UUID> registeredParticipants = HashBiMap.create();
     public static List<Integer> intAnnouncements = new LinkedList<>(List.of(50, 40, 30, 20, 10, 5, 3, 2, 1));
+    public static Location spawn;
 
     public static void registerArenasFromConfig() {
         ConfigurationSection config = BalkouraBattle.getConfigFile().getConfigurationSection("arenas");
@@ -154,7 +157,7 @@ public class BattleManager {
 
     public static OfflinePlayer getBukkitOfflinePlayer(UUID uuid) {
         long now = System.currentTimeMillis();
-        OfflinePlayer offlinePlayer =  Bukkit.getOfflinePlayer(uuid);
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
         System.out.println("Fetched " + offlinePlayer.getName() + " in " + (System.currentTimeMillis() - now) + "ms.");
         return offlinePlayer;
     }
@@ -180,12 +183,21 @@ public class BattleManager {
     }
 
     public static void initPlayers(List<OfflinePlayer> offlinePlayers) {
+        ItemStack sword = new ItemStack(Material.IRON_SWORD);
+        sword.addEnchantment(Enchantment.DAMAGE_ALL, 2);
         offlinePlayers.stream()
                 .filter(player -> player.getPlayer() != null)
                 .forEach(player -> {
                     player.getPlayer().getInventory().clear();
+                    player.getPlayer().getInventory().setHelmet(new ItemStack(Material.IRON_HELMET));
                     player.getPlayer().getInventory().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
-                    player.getPlayer().getInventory().setItem(0, new ItemStack(Material.IRON_SWORD));
+                    player.getPlayer().getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+                    player.getPlayer().getInventory().setBoots(new ItemStack(Material.IRON_BOOTS));
+                    player.getPlayer().getInventory().setItem(0, sword);
+                    player.getPlayer().getInventory().setItem(1, new ItemStack(Material.BOW));
+                    player.getPlayer().getInventory().setItem(2, new ItemStack(Material.ARROW, 12));
+                    player.getPlayer().getInventory().setItem(7, new ItemStack(Material.GOLDEN_APPLE, 3));
+                    player.getPlayer().getInventory().setItem(8, new ItemStack(Material.GOLDEN_CARROT, 12));
                     player.getPlayer().updateInventory();
                     player.getPlayer().setHealth(20);
                     player.getPlayer().setFoodLevel(20);
@@ -210,7 +222,7 @@ public class BattleManager {
     public static List<Player> getAvailablePlayers() {
         return Bukkit.getOnlinePlayers()
                 .stream()
-                .filter(player -> player.getGameMode() == GameMode.ADVENTURE)
+                .filter(player -> player.getGameMode() == GameMode.SPECTATOR)
                 .collect(Collectors.toList());
     }
 
@@ -251,12 +263,12 @@ public class BattleManager {
             textComponents.add(new TextComponent("   §7Réessayez dans quelques instants."));
         } else {
             matches.forEach(match -> {
-                    TextComponent base = new TextComponent("   §e● §fMatch " + match.getIdentifier() + " §7| ");
-                    TextComponent info = new TextComponent("§6[+ d'infos] ");
-                    info.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/battle info " + match.getId()));
-                    base.addExtra(info);
-                    textComponents.add(base);
-                });
+                TextComponent base = new TextComponent("   §e● §fMatch " + match.getIdentifier() + " §7| ");
+                TextComponent info = new TextComponent("§6[+ d'infos] ");
+                info.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/battle info " + match.getId()));
+                base.addExtra(info);
+                textComponents.add(base);
+            });
         }
         ChatManager.sendBeautifulMessage(player, textComponents);
     }
@@ -271,7 +283,7 @@ public class BattleManager {
         } else {
             MatchScore scores = new MatchScore(match.getScoresCsv());
             stringList.add("   §e● §fMatch " + match.getIdentifier() + " :");
-            stringList.add("      §e› §7Set : " + scores.getCurrentRound()); // TODO
+            stringList.add("      §e› §7Set : " + scores.getCurrentRound());
             stringList.add("      §e› §7Status : " + (
                     (match.getState() == MatchState.COMPLETE)
                             ? "§aTerminé"
@@ -335,6 +347,15 @@ public class BattleManager {
         if (sender.hasPermission(permission)) return true;
         ChatManager.sendMessage(sender, "Vous n'avez pas la permission d'exécuter cette commande.");
         return false;
+    }
+
+    public static Location getSpawn() {
+        if (spawn != null) return spawn;
+        int x = BalkouraBattle.getConfigFile().getInt("spawn.x"),
+                y = BalkouraBattle.getConfigFile().getInt("spawn.y"),
+                z = BalkouraBattle.getConfigFile().getInt("spawn.z");
+        spawn = new Location(Bukkit.getWorld("world"), x, y, z);
+        return spawn;
     }
 
 }

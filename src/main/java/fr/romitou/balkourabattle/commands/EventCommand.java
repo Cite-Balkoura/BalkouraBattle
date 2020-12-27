@@ -27,6 +27,27 @@ public class EventCommand implements TabExecutor {
             return false;
         }
         switch (args[0]) {
+            case "speed":
+                if (!BattleManager.hasPermission(sender, "modo.event")) break;
+                if (!(sender instanceof Player)) break;
+                if (args.length == 1) {
+                    ChatManager.sendMessage(sender, "Précisez un nombre valdie");
+                    break;
+                }
+                float speed;
+                try {
+                    speed = Float.parseFloat(args[1]);
+                } catch (NumberFormatException ex) {
+                    ChatManager.sendMessage(sender, "Nombre invalide");
+                    break;
+                }
+                Player player = (Player) sender;
+                if (player.isFlying())
+                    player.setFlySpeed(speed);
+                else
+                    player.setWalkSpeed(speed);
+                ChatManager.sendMessage(sender, "c'est bon");
+                break;
             case "register":
             case "init":
                 if (!BattleManager.hasPermission(sender, "modo.event")) break;

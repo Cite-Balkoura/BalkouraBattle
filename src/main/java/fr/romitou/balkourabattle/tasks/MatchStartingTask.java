@@ -7,6 +7,8 @@ import fr.romitou.balkourabattle.BattleManager;
 import fr.romitou.balkourabattle.ChatManager;
 import fr.romitou.balkourabattle.elements.Arena;
 import fr.romitou.balkourabattle.elements.ArenaStatus;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -31,12 +33,11 @@ public class MatchStartingTask extends BukkitRunnable {
         // Fetch players of this match.
         List<OfflinePlayer> offlinePlayers = BattleManager.getPlayers(match);
         if (offlinePlayers == null) {
-            // TODO: alert
+            ChatManager.modAlert("Impossible de récupérer les joueurs du match " + match.getIdentifier() + ".",
+                    "Assurez-vous qu'ils soient enregistrés avec /battle register."
+            );
             return;
         }
-
-        // Send match informations.
-        offlinePlayers.forEach(player -> BattleManager.sendMatchInfo(player, match.getId()));
 
         BattleManager.arenas.remove(arena);
         arena.setArenaStatus(ArenaStatus.BUSY);
@@ -48,11 +49,13 @@ public class MatchStartingTask extends BukkitRunnable {
                 .filter(player -> player.getPlayer() != null && player.getPlayer().isOnline())
                 .map(OfflinePlayer::getPlayer)
                 .collect(Collectors.toList());
+        Bukkit.getScheduler().runTask(BalkouraBattle.getInstance(), () -> {
+            onlinePlayers.forEach(player -> player.setGameMode(GameMode.SURVIVAL));
+        });
         if (onlinePlayers.size() != 2) {
             if (onlinePlayers.size() == 1) {
                 BattleHandler.handleDisconnectWhileFighting(match);
-            }
-            else if (onlinePlayers.size() == 0) {
+            } else if (onlinePlayers.size() == 0) {
                 BattleManager.getOnlineModerators().forEach(player -> ChatManager.sendMessage(player, "Aucun joueur en ligne lors du démarrage du match " + match.getIdentifier() + ". Les joueurs ont été disqualifiés."));
                 new ParticipantInactiveTask(BattleManager.getParticipant(offlinePlayers.get(0).getUniqueId()))
                         .runTaskAsynchronously(BalkouraBattle.getInstance());
@@ -72,6 +75,8 @@ public class MatchStartingTask extends BukkitRunnable {
 
         BattleManager.initPlayers(offlinePlayers);
         BattleManager.freeze.addAll(offlinePlayers);
+        BattleManager.combat.addAll(offlinePlayers);
+
         BattleManager.getOnlineModerators().forEach(player -> ChatManager.sendMessage(player, "Le match " + match.getIdentifier() + " vient de démarrer."));
     }
 
