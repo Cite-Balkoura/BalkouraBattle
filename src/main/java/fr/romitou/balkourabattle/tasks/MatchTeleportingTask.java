@@ -2,6 +2,7 @@ package fr.romitou.balkourabattle.tasks;
 
 import at.stefangeyer.challonge.model.Match;
 import fr.romitou.balkourabattle.BattleManager;
+import fr.romitou.balkourabattle.ChatManager;
 import fr.romitou.balkourabattle.elements.Arena;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -25,7 +26,9 @@ public class MatchTeleportingTask extends BukkitRunnable {
         if (arena == null) arena = BattleManager.getArenaByMatchId(match.getId());
         List<OfflinePlayer> offlinePlayers = BattleManager.getPlayers(match);
         if (offlinePlayers == null) {
-            // TODO: alert
+            ChatManager.modAlert("Les joueurs du match " + match.getIdentifier() + " n'ont pas pu être trouvés."
+                    + "Le match est donc toujours en cours et doit être stoppé."
+            );
             return;
         }
         Location[] locations = arena.getLocations();

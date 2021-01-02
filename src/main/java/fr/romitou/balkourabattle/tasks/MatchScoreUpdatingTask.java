@@ -20,7 +20,6 @@ public class MatchScoreUpdatingTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        // TODO: endMatch scores
         try {
             Match updateMatch = ChallongeManager.getChallonge().updateMatch(
                     match,

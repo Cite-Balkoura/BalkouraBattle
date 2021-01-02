@@ -42,7 +42,9 @@ public class BattleHandler {
 
         Arena arena = BattleManager.getArenaByMatchId(match.getId());
         if (arena == null) {
-            // TODO
+            ChatManager.modAlert("L'arène du match " + match.getIdentifier() + " n'a pas pu être trouvé."
+                    + "Le match est donc toujours en cours et doit être stoppé."
+            );
             return;
         }
 
@@ -60,18 +62,24 @@ public class BattleHandler {
         if (participant == null) return;
         Match match = BattleManager.getCurrentMatchByPlayerId(participant.getId());
         if (match == null) {
-            // TODO: alert
+            ChatManager.modAlert("Le match du joueur " + player.getName() + " n'a pas été trouvé."
+                    + "Le match est donc toujours en cours et doit être stoppé."
+            );
             return;
         }
         List<OfflinePlayer> offlinePlayers = BattleManager.getPlayers(match);
         if (offlinePlayers == null) {
-            // TODO: alert
+            ChatManager.modAlert("Les joueurs du match " + match.getIdentifier() + " n'ont pas pu être trouvés."
+                    + "Le match est donc toujours en cours et doit être stoppé."
+            );
             return;
         }
 
         // Something went wrong as there's no two players. Someone probably disconnected. Abort.
         if (!(offlinePlayers.stream().filter(offlinePlayer -> offlinePlayer.getPlayer() != null).count() == 2)) {
-            // TODO: alert
+            ChatManager.modAlert("Un joueur s'est probablement déconnecté du match " + match.getIdentifier() + "."
+                    + "Le match est donc toujours en cours et doit être stoppé."
+            );
             return;
         }
 

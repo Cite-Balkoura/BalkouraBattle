@@ -33,8 +33,6 @@ public class MatchRequestCallbackTask extends BukkitRunnable {
         Arena arena = BattleManager.getArenaByMatchId(match.getId());
         if (arena == null || arena.getArenaStatus() != ArenaStatus.VALIDATING) {
             ChatManager.sendMessage(player, "L'arène associée à ce match ne peut plus être utilisée.");
-            BattleManager.arenas.remove(arena);
-            BattleManager.arenas.put(arena, null);
             return;
         }
         BattleManager.getOnlineModerators().forEach(player -> ChatManager.sendMessage(player, "Match " + match.getIdentifier() + " accepté par " + player.getName() + "."));
